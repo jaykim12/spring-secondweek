@@ -14,7 +14,7 @@ public class Memo extends Timestamped {
     private Long id;
 
     @Column(nullable = false) //이게 받는 값
-    private String author;
+    private String username;
 
     @Column(nullable = false) //이게 받는 값
     private String contents;
@@ -28,7 +28,7 @@ public class Memo extends Timestamped {
     //MemoService에서 memoCreate 메서드가 requestDto를 인자로 전달하면
     // 해당 매개변수를 이용해 memo를 초기화 한다.
     public Memo(MemoRequestDto requestDto) {
-        this.author = requestDto.getAuthor();
+        this.username = requestDto.getUsername();
         this.contents = requestDto.getContents();
         this.title = requestDto.getTitle();
         this.password = requestDto.getPassword();
@@ -37,7 +37,7 @@ public class Memo extends Timestamped {
     //MemoService.updateMemo 메서드를 사용할 때 인자로 전달되는 requestDto를
     //받아 메모를 수정하기 위한 메서드
     public void update(MemoRequestDto requestDto) {
-        this.author = requestDto.getAuthor();
+        this.username = requestDto.getUsername();
         this.contents = requestDto.getContents();
         this.title = requestDto.getTitle();
     }

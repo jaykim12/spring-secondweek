@@ -11,7 +11,7 @@ public class MemoResponseDto {
     private Long id;
     private String title;
     private String content;
-    private String author;
+    private String username;
 
     public MemoResponseDto(Memo memo) {
         this.createdAt = String.valueOf(memo.getCreatedAt());
@@ -19,7 +19,7 @@ public class MemoResponseDto {
         this.id = memo.getId();
         this.title = memo.getTitle();
         this.content = memo.getContents();
-        this.author = memo.getAuthor();
+        this.username = memo.getUsername();
     }
 
 }
