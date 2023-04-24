@@ -1,9 +1,11 @@
 package com.sparta.hanghaememo.controller;
 
+import com.sparta.hanghaememo.dto.InterfaceDto;
 import com.sparta.hanghaememo.dto.MemoRequestDto;
 import com.sparta.hanghaememo.dto.MemoResponseDto;
 import com.sparta.hanghaememo.dto.StatusResponseDto;
 import com.sparta.hanghaememo.service.MemoService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -26,8 +28,8 @@ public class MemoController {
 
     //메모 생성
     @PostMapping("/api/memos")
-    public MemoResponseDto createMemo(@RequestBody MemoRequestDto requestDto){
-        return memoService.createMemo(requestDto);
+    public InterfaceDto createMemo(@RequestBody MemoRequestDto requestDto, HttpServletRequest request){
+        return memoService.createMemo(requestDto, request);
     }
 
 
@@ -47,14 +49,14 @@ public class MemoController {
 
     //메모 수정
     @PutMapping("/api/memos/{id}")
-    public MemoResponseDto updateMemo(@PathVariable Long id, @RequestBody MemoRequestDto requestDto){
-        return memoService.update(id, requestDto);
+    public InterfaceDto updateMemo(@PathVariable Long id, @RequestBody MemoRequestDto requestDto, HttpServletRequest request){
+        return memoService.update(id, requestDto, request);
     }
 
 
     //메모 삭제
     @DeleteMapping("/api/memos/{id}")
-    public StatusResponseDto deleteMemo(@PathVariable Long id){
-        return memoService.deleteMemo(id);
+    public StatusResponseDto deleteMemo(@PathVariable Long id, HttpServletRequest request){
+        return memoService.deleteMemo(id, request);
     }
 }
