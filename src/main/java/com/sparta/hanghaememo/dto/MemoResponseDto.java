@@ -4,7 +4,7 @@ import com.sparta.hanghaememo.entity.Memo;
 import lombok.Getter;
 
 @Getter
-public class MemoResponseDto {
+public class MemoResponseDto implements InterfaceDto {
 
     private String createdAt;
     private String modifiedAt;
@@ -19,7 +19,7 @@ public class MemoResponseDto {
         this.id = memo.getId();
         this.title = memo.getTitle();
         this.content = memo.getContents();
-        this.username = memo.getUsername();
+        this.username = memo.getUser().getUsername();
     }
 
 }
