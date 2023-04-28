@@ -1,11 +1,14 @@
 package com.sparta.hanghaememo.service;
 
+import com.sparta.hanghaememo.Exception.CustomException;
 import com.sparta.hanghaememo.dto.InterfaceDto;
 import com.sparta.hanghaememo.dto.MemoRequestDto;
 import com.sparta.hanghaememo.dto.MemoResponseDto;
 import com.sparta.hanghaememo.dto.StatusResponseDto;
+import com.sparta.hanghaememo.entity.ExceptionEnum;
 import com.sparta.hanghaememo.entity.Memo;
 import com.sparta.hanghaememo.entity.User;
+import com.sparta.hanghaememo.entity.UserRoleEnum;
 import com.sparta.hanghaememo.jwt.JwtUtil;
 import com.sparta.hanghaememo.repository.MemoRepository;
 import com.sparta.hanghaememo.repository.UserRepository;
@@ -36,8 +39,8 @@ public class MemoService {
         User user = getUserByToken(token);
 
         if(user != null){
-            Memo memo = new Memo(requestDto);
-            memo.setUser(user);
+            Memo memo = new Memo(requestDto,user);
+
             memoRepository.save(memo);
             return new MemoResponseDto(memo);
         }else{
@@ -67,13 +70,16 @@ public class MemoService {
     public InterfaceDto update(Long id, MemoRequestDto requestDto, HttpServletRequest request) {
         String token = jwtUtil.resolveToken(request);
 
+        Claims claims = checkingToken(request);
+
+
         Memo memo = memoRepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException("아이디가 존재하지 않습니다.")
         );
 
         User user = getUserByToken(token);
 
-        if(memo.getUser().getUsername().equals(user.getUsername())){
+        if(memo.getUser().getUsername().equals(user.getUsername()) || user.getRole() == UserRoleEnum.ADMIN ){
             memo.update(requestDto);
         }else{
             return new StatusResponseDto("해당 메모의 작성자만 수정이 가능합니다.", HttpStatus.BAD_REQUEST);
@@ -86,13 +92,17 @@ public class MemoService {
     @Transactional
     public StatusResponseDto deleteMemo(Long id, HttpServletRequest request) {
         String token = jwtUtil.resolveToken(request);
-        User user = getUserByToken(token);
+        Claims claims = checkingToken(request);
+//        User user = getUserByToken(token);
+        User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
+                () -> new IllegalArgumentException("존재하지 않는 사용자입니다.")
+        );
 
         Memo memo = memoRepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException("아이디가 존재하지 않습니다.")
         );
 
-        if(user.getUsername().equals(memo.getUser().getUsername())){
+        if(user.getUsername().equals(memo.getUser().getUsername())|| user.getRole() == UserRoleEnum.ADMIN ){
             memoRepository.deleteById(memo.getId());
         }else{
             return new StatusResponseDto("해당 메모의 작성자만 메모를 삭제할 수 있습니다.", HttpStatus.BAD_REQUEST);
@@ -122,7 +132,7 @@ public class MemoService {
     }
 
 
-    //해당 메서드 사용해서 예외처리를 이용하면 서버 에러로 나옴 (500, Server Error)
+    //
     public User getUserByToken(String token){
         Claims claims;
 
@@ -130,7 +140,7 @@ public class MemoService {
             if(jwtUtil.validateToken(token)){
                 claims = jwtUtil.getUserInfoFromToken(token);
             }else{
-                throw new IllegalArgumentException("허가되지 않은 토큰입니다.");
+                throw new CustomException(ExceptionEnum.TOKEN_NOT_FOUND);
             }
 
             User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
@@ -139,5 +149,14 @@ public class MemoService {
             return user;
         }
         return null;
+    }
+
+    public Claims checkingToken(HttpServletRequest request)
+            throws NullPointerException{
+        Claims claims =jwtUtil.getUserInfoFromToken(jwtUtil.resolveToken(request));
+        if(claims == null){
+            throw new NullPointerException("토큰 유효하지 않다");
+        }
+        return claims;
     }
 }

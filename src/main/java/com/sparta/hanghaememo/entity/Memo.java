@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Setter
 @Entity
@@ -28,12 +31,16 @@ public class Memo extends Timestamped {
     @JoinColumn(name = "username")
     private User user;
 
+    @OneToMany(mappedBy = "memo",orphanRemoval = true)
+    private List<Comment> comments =new ArrayList<>();
+
     //MemoService에서 memoCreate 메서드가 requestDto를 인자로 전달하면
     // 해당 매개변수를 이용해 memo를 초기화 한다.
-    public Memo(MemoRequestDto requestDto) {
+    public Memo(MemoRequestDto requestDto, User user) {
 //        this.username = requestDto.getUsername();
         this.contents = requestDto.getContents();
         this.title = requestDto.getTitle();
+        this.user =user;
     }
 
     //MemoService.updateMemo 메서드를 사용할 때 인자로 전달되는 requestDto를

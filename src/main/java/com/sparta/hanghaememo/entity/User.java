@@ -1,9 +1,7 @@
 package com.sparta.hanghaememo.entity;
 
 import com.sparta.hanghaememo.dto.UserRequestDto;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -19,8 +17,14 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    public User(UserRequestDto userRequestDto) {
+    @Column(nullable = false)
+    @Enumerated(value = EnumType.STRING)
+    private UserRoleEnum role;
+
+    public User(UserRequestDto userRequestDto, UserRoleEnum role) {
         this.username = userRequestDto.getUsername();
         this.password = userRequestDto.getPassword();
+        this.role = role;
+
     }
 }
