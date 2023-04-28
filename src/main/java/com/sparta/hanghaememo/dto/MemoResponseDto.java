@@ -1,10 +1,15 @@
 package com.sparta.hanghaememo.dto;
 
+import com.sparta.hanghaememo.entity.Comment;
 import com.sparta.hanghaememo.entity.Memo;
 import lombok.Getter;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Getter
-public class MemoResponseDto implements InterfaceDto {
+public class MemoResponseDto {
 
     private String createdAt;
     private String modifiedAt;
@@ -12,6 +17,7 @@ public class MemoResponseDto implements InterfaceDto {
     private String title;
     private String content;
     private String username;
+    private List<CommentResponseDto> commentResponseDtos;
 
     public MemoResponseDto(Memo memo) {
         this.createdAt = String.valueOf(memo.getCreatedAt());
@@ -20,6 +26,6 @@ public class MemoResponseDto implements InterfaceDto {
         this.title = memo.getTitle();
         this.content = memo.getContents();
         this.username = memo.getUser().getUsername();
+        this.commentResponseDtos = memo.getComments().stream().map(CommentResponseDto::new).collect(Collectors.toList());
     }
-
 }

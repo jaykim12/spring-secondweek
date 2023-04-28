@@ -28,7 +28,8 @@ public class UserService {
 
     @Transactional
     public StatusResponseDto signup(UserRequestDto userRequestDto) {
-
+        
+        
         // 회원 중복 확인
         Optional<User> found = userRepository.findByUsername(userRequestDto.getUsername());
         if (found.isPresent()) {

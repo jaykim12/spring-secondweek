@@ -10,12 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-@Setter
 @Entity
 @NoArgsConstructor
 public class Memo extends Timestamped {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
 //    @Column(nullable = false) //이게 받는 값
@@ -31,7 +30,7 @@ public class Memo extends Timestamped {
     @JoinColumn(name = "username")
     private User user;
 
-    @OneToMany(mappedBy = "memo",orphanRemoval = true)
+    @OneToMany(mappedBy = "memo",orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Comment> comments =new ArrayList<>();
 
     //MemoService에서 memoCreate 메서드가 requestDto를 인자로 전달하면

@@ -1,11 +1,10 @@
 package com.sparta.hanghaememo.service;
 
 import com.sparta.hanghaememo.Exception.CustomException;
-import com.sparta.hanghaememo.dto.InterfaceDto;
 import com.sparta.hanghaememo.dto.MemoRequestDto;
 import com.sparta.hanghaememo.dto.MemoResponseDto;
 import com.sparta.hanghaememo.dto.StatusResponseDto;
-import com.sparta.hanghaememo.entity.ExceptionEnum;
+import com.sparta.hanghaememo.Exception.ExceptionEnum;
 import com.sparta.hanghaememo.entity.Memo;
 import com.sparta.hanghaememo.entity.User;
 import com.sparta.hanghaememo.entity.UserRoleEnum;
@@ -19,8 +18,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,71 +31,49 @@ public class MemoService {
 
     //메모 생성
     @Transactional
-    public InterfaceDto createMemo(MemoRequestDto requestDto, HttpServletRequest request) {
+    public MemoResponseDto createMemo(MemoRequestDto requestDto, HttpServletRequest request) {
         String token = jwtUtil.resolveToken(request);
-//        Claims claims = jwtUtil.getUserInfoFromToken(token);
 
         User user = getUserByToken(token);
-
-        if(user != null){
-            Memo memo = new Memo(requestDto,user);
-
-            memoRepository.save(memo);
-            return new MemoResponseDto(memo);
-        }else{
-            return new StatusResponseDto("사용할 수 없는 토큰입니다.", HttpStatus.BAD_REQUEST);
-        }
-
+        Memo memo = new Memo(requestDto,user);
+        
+        memoRepository.save(memo);
+        return new MemoResponseDto(memo);
     }
 
 
     //메모 전체 조회
     @Transactional(readOnly = true)
     public List<MemoResponseDto> getMemos() {
-        List<Memo> lists = memoRepository.findAllByOrderByModifiedAtDesc();
-
-        List<MemoResponseDto> memos = new ArrayList();
-
-        for(Memo memo : lists){
-            memos.add(new MemoResponseDto(memo));
-        }
-
-        return memos;
+        return memoRepository.findAll().stream().map(MemoResponseDto::new).collect(Collectors.toList());
     }
 
 
     //메모 수정
     @Transactional
-    public InterfaceDto update(Long id, MemoRequestDto requestDto, HttpServletRequest request) {
-        String token = jwtUtil.resolveToken(request);
-
-        Claims claims = checkingToken(request);
-
+    public MemoResponseDto update(Long id, MemoRequestDto requestDto, HttpServletRequest request) {
+        String token = checkToken(request);
+        User user = getUserByToken(token);
 
         Memo memo = memoRepository.findById(id).orElseThrow(
-                () -> new IllegalArgumentException("아이디가 존재하지 않습니다.")
+                () -> new CustomException(ExceptionEnum.USER_NOT_FOUND)
         );
-
-        User user = getUserByToken(token);
 
         if(memo.getUser().getUsername().equals(user.getUsername()) || user.getRole() == UserRoleEnum.ADMIN ){
             memo.update(requestDto);
-        }else{
-            return new StatusResponseDto("해당 메모의 작성자만 수정이 가능합니다.", HttpStatus.BAD_REQUEST);
+            return new MemoResponseDto(memo);
         }
-        return new MemoResponseDto(memo);
+
+        throw new CustomException(ExceptionEnum.NOT_ALLOW_AUTHORIZATIONS);
     }
+
 
 
     //메모 삭제
     @Transactional
     public StatusResponseDto deleteMemo(Long id, HttpServletRequest request) {
-        String token = jwtUtil.resolveToken(request);
-        Claims claims = checkingToken(request);
-//        User user = getUserByToken(token);
-        User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
-                () -> new IllegalArgumentException("존재하지 않는 사용자입니다.")
-        );
+        String token = checkToken(request);
+        User user = getUserByToken(token);
 
         Memo memo = memoRepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException("아이디가 존재하지 않습니다.")
@@ -104,31 +81,18 @@ public class MemoService {
 
         if(user.getUsername().equals(memo.getUser().getUsername())|| user.getRole() == UserRoleEnum.ADMIN ){
             memoRepository.deleteById(memo.getId());
-        }else{
-            return new StatusResponseDto("해당 메모의 작성자만 메모를 삭제할 수 있습니다.", HttpStatus.BAD_REQUEST);
+            return new StatusResponseDto("삭제를 성공적으로 마쳤습니다.", HttpStatus.OK);
         }
-        return new StatusResponseDto("삭제를 성공적으로 마쳤습니다.", HttpStatus.OK);
+
+        throw new CustomException(ExceptionEnum.NOT_ALLOW_AUTHORIZATIONS);
     }
 
 
     //메모 상세 조회
     public MemoResponseDto getMemo(Long id) {
-        List<Memo> lists = memoRepository.findAllByOrderByModifiedAtDesc();
-
-        List<MemoResponseDto> memos = new ArrayList();
-        MemoResponseDto selectedMemo = null;
-
-        for (Memo memo : lists) {
-            if (memo.getId() == id) {
-                selectedMemo = new MemoResponseDto(memo);
-            }
-
-            if(selectedMemo == null){
-                MessageService.getMemo();
-            }
-
-        }
-        return selectedMemo;
+        return new MemoResponseDto(memoRepository.findById(id).orElseThrow(
+                () -> new CustomException(ExceptionEnum.MEMO_NOT_FOUND)
+        ));
     }
 
 
@@ -144,19 +108,18 @@ public class MemoService {
             }
 
             User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
-                    () -> new IllegalArgumentException("존재하지 않는 사용자입니다.")
+                    () -> new CustomException(ExceptionEnum.USER_NOT_FOUND)
             );
             return user;
         }
-        return null;
+        throw new CustomException(ExceptionEnum.TOKEN_NOT_FOUND);
     }
 
-    public Claims checkingToken(HttpServletRequest request)
-            throws NullPointerException{
-        Claims claims =jwtUtil.getUserInfoFromToken(jwtUtil.resolveToken(request));
-        if(claims == null){
-            throw new NullPointerException("토큰 유효하지 않다");
+    private String checkToken(HttpServletRequest request) {
+        String token = jwtUtil.resolveToken(request);
+        if (!jwtUtil.validateToken(token)) {
+            throw new CustomException(ExceptionEnum.TOKEN_NOT_FOUND);
         }
-        return claims;
+        return token;
     }
 }

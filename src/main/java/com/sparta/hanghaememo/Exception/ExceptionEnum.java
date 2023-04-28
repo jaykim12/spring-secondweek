@@ -1,4 +1,4 @@
-package com.sparta.hanghaememo.entity;
+package com.sparta.hanghaememo.Exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 public enum ExceptionEnum {
 
 
-    Memo_NOT_FOUND(HttpStatus.NOT_FOUND, "메모 정보가 없습니다"),
+    MEMO_NOT_FOUND(HttpStatus.NOT_FOUND, "메모 정보가 없습니다"),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "등록된 회원이 존재 하지 않습니다."),
     USERS_DUPLICATION(HttpStatus.BAD_REQUEST, "중복된 이름이 존재합니다."),
     COMMENTS_NOT_FOUND(HttpStatus.NOT_FOUND, "댓글이 존재하지 않습니다."),

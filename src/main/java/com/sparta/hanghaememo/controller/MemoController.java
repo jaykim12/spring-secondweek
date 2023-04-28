@@ -1,6 +1,5 @@
 package com.sparta.hanghaememo.controller;
 
-import com.sparta.hanghaememo.dto.InterfaceDto;
 import com.sparta.hanghaememo.dto.MemoRequestDto;
 import com.sparta.hanghaememo.dto.MemoResponseDto;
 import com.sparta.hanghaememo.dto.StatusResponseDto;
@@ -11,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,7 +26,7 @@ public class MemoController {
 
     //메모 생성
     @PostMapping("/api/memos")
-    public InterfaceDto createMemo(@RequestBody MemoRequestDto requestDto, HttpServletRequest request){
+    public MemoResponseDto createMemo(@RequestBody MemoRequestDto requestDto, HttpServletRequest request){
         return memoService.createMemo(requestDto, request);
     }
 
@@ -49,7 +47,7 @@ public class MemoController {
 
     //메모 수정
     @PutMapping("/api/memos/{id}")
-    public InterfaceDto updateMemo(@PathVariable Long id, @RequestBody MemoRequestDto requestDto, HttpServletRequest request){
+    public MemoResponseDto updateMemo(@PathVariable Long id, @RequestBody MemoRequestDto requestDto, HttpServletRequest request){
         return memoService.update(id, requestDto, request);
     }
 
