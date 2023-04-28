@@ -2,7 +2,7 @@ package com.sparta.hanghaememo.controller;
 
 
 import com.sparta.hanghaememo.dto.CommentRequestDto;
-import com.sparta.hanghaememo.dto.InterfaceDto;
+import com.sparta.hanghaememo.dto.CommentResponseDto;
 import com.sparta.hanghaememo.dto.StatusResponseDto;
 import com.sparta.hanghaememo.service.CommentService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,13 +16,13 @@ public class CommentController {
 
     private final CommentService commentService;
 
-    @PostMapping("/comment/{id}")
-    public InterfaceDto createComment(@PathVariable Long id, @RequestBody CommentRequestDto requestDto, HttpServletRequest request){
-        return commentService.createComment(id,requestDto,request);
+    @PostMapping("/comment")
+    public CommentResponseDto createComment(@RequestBody CommentRequestDto requestDto, HttpServletRequest request){
+        return commentService.createComment(requestDto, request);
     }
 
     @PutMapping("/comment/{id}")
-    public InterfaceDto updateComment(@PathVariable Long id, @RequestBody CommentRequestDto requestDto,HttpServletRequest request){
+    public CommentResponseDto updateComment(@PathVariable Long id, @RequestBody CommentRequestDto requestDto, HttpServletRequest request){
         return commentService.updateComment(id,requestDto,request);
     }
 

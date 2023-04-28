@@ -2,6 +2,7 @@ package com.sparta.hanghaememo.service;
 
 
 import com.sparta.hanghaememo.Exception.CustomException;
+import com.sparta.hanghaememo.Exception.ExceptionEnum;
 import com.sparta.hanghaememo.dto.*;
 import com.sparta.hanghaememo.entity.*;
 import com.sparta.hanghaememo.jwt.JwtUtil;
@@ -25,98 +26,62 @@ public class CommentService {
 
 
     @Transactional
-    public InterfaceDto createComment(Long id, CommentRequestDto requestDto, HttpServletRequest request){
+    public CommentResponseDto createComment(CommentRequestDto requestDto, HttpServletRequest request){
         //hear 토큰 가져오기
         String token = jwtUtil.resolveToken(request);
 
         //memo저장한 db에서 id로 해당 게시물 찾기
-        Memo memo = memoRepository.findById(id).orElseThrow(
-                () -> new NullPointerException("존재하지 않는 게시물")
+        Memo memo = memoRepository.findById(requestDto.getPostId()).orElseThrow(
+                () -> new CustomException(ExceptionEnum.MEMO_NOT_FOUND)
         );
 
         // 유저가 가져온 토큰 승인된 토큰인지 확인,유저 db에서 username으로 존재하는 유저인지 확인
         User user = getUserByToken(token);
 
+        Comment comment = new Comment(requestDto);
+        comment.setMemo(memo);
+        comment.setUser(user);
+        commentRepository.save(comment);
 
-        if(user != null){
-          Comment comment = new Comment(requestDto);
-
-          comment.setMemo(memo);
-          comment.setUser(user);
-
-          commentRepository.save(comment);
-
-
-            return new CommentResponseDto(comment);
-        }else{
-            return new StatusResponseDto("사용할 수 없는 토큰입니다.", HttpStatus.BAD_REQUEST);
-        }
+        return new CommentResponseDto(comment);
     }
-    @Transactional
-    public InterfaceDto updateComment(Long id,CommentRequestDto requestDto,HttpServletRequest request){
-        String token = jwtUtil.resolveToken(request);
 
-//        Claims claims = checkingToken(request);
+    @Transactional
+    public CommentResponseDto updateComment(Long id,CommentRequestDto requestDto,HttpServletRequest request){
+        String token = jwtUtil.resolveToken(request);
         User user = getUserByToken(token);
 
         Comment comment = commentRepository.findById(id).orElseThrow(
-                () -> new NullPointerException("댓글이 없습니다")
-
-
+                () -> new CustomException(ExceptionEnum.COMMENTS_NOT_FOUND)
         );
+
         if(comment.getUser().getUsername().equals(user.getUsername()) || user.getRole() == UserRoleEnum.ADMIN){
             comment.update(requestDto);
             return new CommentResponseDto(comment);
         }
-        else{
-            return new StatusResponseDto("작성자와 관리자만 수정가능",HttpStatus.BAD_REQUEST);
-        }
 
-
-
+        throw new CustomException(ExceptionEnum.NOT_ALLOW_AUTHORIZATIONS);
     }
 
+    @Transactional
     public StatusResponseDto deleteComment(Long id,HttpServletRequest request){
 //        Claims claims =checkingToken(request);
         String token = jwtUtil.resolveToken(request);
         User user = getUserByToken(token);
 
         Comment comment = commentRepository.findById(id).orElseThrow(
-                () -> new NullPointerException("존재하지 않는 댓글")
+                () -> new CustomException(ExceptionEnum.COMMENTS_NOT_FOUND)
         );
+
         if(comment.getUser().getUsername().equals(user.getUsername()) || user.getRole() == UserRoleEnum.ADMIN){
             commentRepository.delete(comment);
             return new StatusResponseDto("삭제 완료",HttpStatus.OK);
         }
-        else{
-            return new StatusResponseDto("작성자,관리자만 삭제가능",HttpStatus.BAD_REQUEST);
-        }
 
+        throw new CustomException(ExceptionEnum.NOT_ALLOW_AUTHORIZATIONS);
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-public Claims checkingToken(HttpServletRequest request)
-    throws NullPointerException{
-        Claims claims =jwtUtil.getUserInfoFromToken(jwtUtil.resolveToken(request));
-        if(claims == null){
-            throw new NullPointerException("토큰 유효하지 않다");
-        }
-        return claims;
-}
 
 
 
@@ -132,11 +97,10 @@ public Claims checkingToken(HttpServletRequest request)
                 throw new CustomException(ExceptionEnum.TOKEN_NOT_FOUND);
             }
 
-            User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
-                    () -> new IllegalArgumentException("존재하지 않는 사용자입니다.")
+            return userRepository.findByUsername(claims.getSubject()).orElseThrow(
+                    () -> new CustomException(ExceptionEnum.USER_NOT_FOUND)
             );
-            return user;
         }
-        return null;
+        throw new CustomException(ExceptionEnum.TOKEN_NOT_FOUND);
     }
 }

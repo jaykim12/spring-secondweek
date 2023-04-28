@@ -4,6 +4,7 @@ import com.sparta.hanghaememo.dto.UserRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity(name = "users")
 @Getter
@@ -25,6 +26,5 @@ public class User {
         this.username = userRequestDto.getUsername();
         this.password = userRequestDto.getPassword();
         this.role = role;
-
     }
 }

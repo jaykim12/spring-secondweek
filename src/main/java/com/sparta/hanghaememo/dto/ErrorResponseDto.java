@@ -1,7 +1,7 @@
 package com.sparta.hanghaememo.dto;
 
 
-import com.sparta.hanghaememo.entity.ExceptionEnum;
+import com.sparta.hanghaememo.Exception.ExceptionEnum;
 import lombok.Getter;
 @Getter
 public class ErrorResponseDto {
