@@ -31,10 +31,10 @@ public class MemoService {
 
     //메모 생성
     @Transactional
-    public MemoResponseDto createMemo(MemoRequestDto requestDto, HttpServletRequest request) {
-        String token = jwtUtil.resolveToken(request);
-
-        User user = getUserByToken(token);
+    public MemoResponseDto createMemo(MemoRequestDto requestDto, User user) {
+//        String token = jwtUtil.resolveToken(request);
+//
+//        User user = getUserByToken(token);
         Memo memo = new Memo(requestDto,user);
         
         memoRepository.save(memo);
@@ -51,9 +51,9 @@ public class MemoService {
 
     //메모 수정
     @Transactional
-    public MemoResponseDto update(Long id, MemoRequestDto requestDto, HttpServletRequest request) {
-        String token = checkToken(request);
-        User user = getUserByToken(token);
+    public MemoResponseDto update(Long id, MemoRequestDto requestDto, User user) {
+//        String token = checkToken(request);
+//        User user = getUserByToken(token);
 
         Memo memo = memoRepository.findById(id).orElseThrow(
                 () -> new CustomException(ExceptionEnum.USER_NOT_FOUND)
@@ -71,9 +71,9 @@ public class MemoService {
 
     //메모 삭제
     @Transactional
-    public StatusResponseDto deleteMemo(Long id, HttpServletRequest request) {
-        String token = checkToken(request);
-        User user = getUserByToken(token);
+    public StatusResponseDto deleteMemo(Long id, User user) {
+//        String token = checkToken(request);
+//        User user = getUserByToken(token);
 
         Memo memo = memoRepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException("아이디가 존재하지 않습니다.")
@@ -97,29 +97,29 @@ public class MemoService {
 
 
     //
-    public User getUserByToken(String token){
-        Claims claims;
-
-        if(token != null){
-            if(jwtUtil.validateToken(token)){
-                claims = jwtUtil.getUserInfoFromToken(token);
-            }else{
-                throw new CustomException(ExceptionEnum.TOKEN_NOT_FOUND);
-            }
-
-            User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
-                    () -> new CustomException(ExceptionEnum.USER_NOT_FOUND)
-            );
-            return user;
-        }
-        throw new CustomException(ExceptionEnum.TOKEN_NOT_FOUND);
-    }
-
-    private String checkToken(HttpServletRequest request) {
-        String token = jwtUtil.resolveToken(request);
-        if (!jwtUtil.validateToken(token)) {
-            throw new CustomException(ExceptionEnum.TOKEN_NOT_FOUND);
-        }
-        return token;
-    }
+//    public User getUserByToken(String token){
+//        Claims claims;
+//
+//        if(token != null){
+//            if(jwtUtil.validateToken(token)){
+//                claims = jwtUtil.getUserInfoFromToken(token);
+//            }else{
+//                throw new CustomException(ExceptionEnum.TOKEN_NOT_FOUND);
+//            }
+//
+//            User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
+//                    () -> new CustomException(ExceptionEnum.USER_NOT_FOUND)
+//            );
+//            return user;
+//        }
+//        throw new CustomException(ExceptionEnum.TOKEN_NOT_FOUND);
+//    }
+//
+//    private String checkToken(HttpServletRequest request) {
+//        String token = jwtUtil.resolveToken(request);
+//        if (!jwtUtil.validateToken(token)) {
+//            throw new CustomException(ExceptionEnum.TOKEN_NOT_FOUND);
+//        }
+//        return token;
+//    }
 }

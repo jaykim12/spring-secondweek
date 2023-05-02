@@ -26,9 +26,9 @@ public class CommentService {
 
 
     @Transactional
-    public CommentResponseDto createComment(CommentRequestDto requestDto, HttpServletRequest request){
+    public CommentResponseDto createComment(CommentRequestDto requestDto, User user){
         //hear 토큰 가져오기
-        String token = jwtUtil.resolveToken(request);
+//        String token = jwtUtil.resolveToken(request);
 
         //memo저장한 db에서 id로 해당 게시물 찾기
         Memo memo = memoRepository.findById(requestDto.getPostId()).orElseThrow(
@@ -36,7 +36,7 @@ public class CommentService {
         );
 
         // 유저가 가져온 토큰 승인된 토큰인지 확인,유저 db에서 username으로 존재하는 유저인지 확인
-        User user = getUserByToken(token);
+//        User user = getUserByToken(token);
 
         Comment comment = new Comment(requestDto);
         comment.setMemo(memo);
@@ -47,9 +47,9 @@ public class CommentService {
     }
 
     @Transactional
-    public CommentResponseDto updateComment(Long id,CommentRequestDto requestDto,HttpServletRequest request){
-        String token = jwtUtil.resolveToken(request);
-        User user = getUserByToken(token);
+    public CommentResponseDto updateComment(Long id,CommentRequestDto requestDto,User user){
+//        String token = jwtUtil.resolveToken(request);
+//        User user = getUserByToken(token);
 
         Comment comment = commentRepository.findById(id).orElseThrow(
                 () -> new CustomException(ExceptionEnum.COMMENTS_NOT_FOUND)
@@ -64,10 +64,10 @@ public class CommentService {
     }
 
     @Transactional
-    public StatusResponseDto deleteComment(Long id,HttpServletRequest request){
+    public StatusResponseDto deleteComment(Long id,User user){
 //        Claims claims =checkingToken(request);
-        String token = jwtUtil.resolveToken(request);
-        User user = getUserByToken(token);
+//        String token = jwtUtil.resolveToken(request);
+//        User user = getUserByToken(token);
 
         Comment comment = commentRepository.findById(id).orElseThrow(
                 () -> new CustomException(ExceptionEnum.COMMENTS_NOT_FOUND)
@@ -87,20 +87,20 @@ public class CommentService {
 
 
 
-    public User getUserByToken(String token){
-        Claims claims;
-
-        if(token != null){
-            if(jwtUtil.validateToken(token)){
-                claims = jwtUtil.getUserInfoFromToken(token);
-            }else{
-                throw new CustomException(ExceptionEnum.TOKEN_NOT_FOUND);
-            }
-
-            return userRepository.findByUsername(claims.getSubject()).orElseThrow(
-                    () -> new CustomException(ExceptionEnum.USER_NOT_FOUND)
-            );
-        }
-        throw new CustomException(ExceptionEnum.TOKEN_NOT_FOUND);
-    }
+//    public User getUserByToken(String token){
+//        Claims claims;
+//
+//        if(token != null){
+//            if(jwtUtil.validateToken(token)){
+//                claims = jwtUtil.getUserInfoFromToken(token);
+//            }else{
+//                throw new CustomException(ExceptionEnum.TOKEN_NOT_FOUND);
+//            }
+//
+//            return userRepository.findByUsername(claims.getSubject()).orElseThrow(
+//                    () -> new CustomException(ExceptionEnum.USER_NOT_FOUND)
+//            );
+//        }
+//        throw new CustomException(ExceptionEnum.TOKEN_NOT_FOUND);
+//    }
 }
