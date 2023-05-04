@@ -10,4 +10,10 @@ import org.springframework.http.HttpStatus;
 public class StatusResponseDto {
     private String msg;
     private HttpStatus status;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private T data;
+
+    public static <T> StatusResponseDto<T> statusResponseDto(String msg, HttpStatus status, T data){
+        return new StatusResponseDto<>(msg, status, data);
+    }
 }

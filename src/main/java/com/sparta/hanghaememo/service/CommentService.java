@@ -38,9 +38,9 @@ public class CommentService {
         // 유저가 가져온 토큰 승인된 토큰인지 확인,유저 db에서 username으로 존재하는 유저인지 확인
 //        User user = getUserByToken(token);
 
-        Comment comment = new Comment(requestDto);
-        comment.setMemo(memo);
-        comment.setUser(user);
+        Comment comment = new Comment(requestDto,memo,user);
+//        comment.setMemo(memo);
+//        comment.setUser(user);
         commentRepository.save(comment);
 
         return new CommentResponseDto(comment);
@@ -75,7 +75,7 @@ public class CommentService {
 
         if(comment.getUser().getUsername().equals(user.getUsername()) || user.getRole() == UserRoleEnum.ADMIN){
             commentRepository.delete(comment);
-            return new StatusResponseDto("삭제 완료",HttpStatus.OK);
+            return new StatusResponseDto("삭제 완료",HttpStatus.OK,null);
         }
 
         throw new CustomException(ExceptionEnum.NOT_ALLOW_AUTHORIZATIONS);

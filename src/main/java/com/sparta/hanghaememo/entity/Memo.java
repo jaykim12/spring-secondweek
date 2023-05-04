@@ -15,6 +15,7 @@ import java.util.List;
 public class Memo extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "memo_id")
     private Long id;
 
 //    @Column(nullable = false) //이게 받는 값
@@ -30,8 +31,15 @@ public class Memo extends Timestamped {
     @JoinColumn(name = "username")
     private User user;
 
+    @Column(nullable = false)
+    @ColumnDefault("0")
+    private int likes = 0;
+
     @OneToMany(mappedBy = "memo",orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Comment> comments =new ArrayList<>();
+
+    @OneToMany(mappedBy = "memo")
+    private List<MemoLike> memoLikeList = new ArrayList<>();
 
     //MemoService에서 memoCreate 메서드가 requestDto를 인자로 전달하면
     // 해당 매개변수를 이용해 memo를 초기화 한다.
@@ -49,4 +57,13 @@ public class Memo extends Timestamped {
         this.contents = requestDto.getContents();
         this.title = requestDto.getTitle();
     }
+
+    public void plusLike(){
+        ++likes;
+    }
+    public void minusLike() {
+        --likes;
+    }
+
+
 }

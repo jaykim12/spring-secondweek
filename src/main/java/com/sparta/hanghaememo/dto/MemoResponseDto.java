@@ -18,6 +18,7 @@ public class MemoResponseDto {
     private String content;
     private String username;
     private List<CommentResponseDto> commentResponseDtos;
+    private Integer likes;
 
     public MemoResponseDto(Memo memo) {
         this.createdAt = String.valueOf(memo.getCreatedAt());
@@ -27,5 +28,6 @@ public class MemoResponseDto {
         this.content = memo.getContents();
         this.username = memo.getUser().getUsername();
         this.commentResponseDtos = memo.getComments().stream().map(CommentResponseDto::new).collect(Collectors.toList());
+        this.likes = memo.getLikes();
     }
 }

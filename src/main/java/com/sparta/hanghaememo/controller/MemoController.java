@@ -4,6 +4,7 @@ import com.sparta.hanghaememo.dto.MemoRequestDto;
 import com.sparta.hanghaememo.dto.MemoResponseDto;
 import com.sparta.hanghaememo.dto.StatusResponseDto;
 import com.sparta.hanghaememo.security.UserDetailsImpl;
+import com.sparta.hanghaememo.service.MemoLikeService;
 import com.sparta.hanghaememo.service.MemoService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import java.util.List;
 public class MemoController {
 
     private final MemoService memoService;
+    private  final MemoLikeService memoLikeService;
 
     //ModelAndView에 데이터와 뷰의 정보 저장
     @GetMapping("/")
@@ -59,4 +61,14 @@ public class MemoController {
     public StatusResponseDto deleteMemo(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails){
         return memoService.deleteMemo(id, userDetails.getUser());
     }
+
+    @PostMapping("/api/memos/like/{id}")
+    public StatusResponseDto push(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails){
+
+
+        return   memoLikeService.push(id,userDetails.getUser());
+
+    }
+
+
 }

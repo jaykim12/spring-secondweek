@@ -11,6 +11,7 @@ import com.sparta.hanghaememo.entity.UserRoleEnum;
 import com.sparta.hanghaememo.jwt.JwtUtil;
 import com.sparta.hanghaememo.repository.MemoRepository;
 import com.sparta.hanghaememo.repository.UserRepository;
+import com.sparta.hanghaememo.security.UserDetailsImpl;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -81,7 +82,7 @@ public class MemoService {
 
         if(user.getUsername().equals(memo.getUser().getUsername())|| user.getRole() == UserRoleEnum.ADMIN ){
             memoRepository.deleteById(memo.getId());
-            return new StatusResponseDto("삭제를 성공적으로 마쳤습니다.", HttpStatus.OK);
+            return new StatusResponseDto("삭제를 성공적으로 마쳤습니다.", HttpStatus.OK,null);
         }
 
         throw new CustomException(ExceptionEnum.NOT_ALLOW_AUTHORIZATIONS);
@@ -94,6 +95,7 @@ public class MemoService {
                 () -> new CustomException(ExceptionEnum.MEMO_NOT_FOUND)
         ));
     }
+
 
 
     //

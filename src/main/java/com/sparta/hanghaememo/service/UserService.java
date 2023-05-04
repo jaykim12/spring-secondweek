@@ -47,7 +47,7 @@ public class UserService {
 
         User user = new User(userRequestDto,role);
         userRepository.save(user);
-        return new StatusResponseDto("회원가입을 성공적으로 마쳤습니다.", HttpStatus.OK);
+        return new StatusResponseDto("회원가입을 성공적으로 마쳤습니다.", HttpStatus.OK,null);
     }
 
     @Transactional
