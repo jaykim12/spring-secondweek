@@ -33,7 +33,7 @@ public class UserService {
         // 회원 중복 확인
         Optional<User> found = userRepository.findByUsername(userRequestDto.getUsername());
         if (found.isPresent()) {
-            return new StatusResponseDto("이미 회원가입이 된 사용자입니다.", HttpStatus.ALREADY_REPORTED);
+            return new StatusResponseDto("이미 회원가입이 된 사용자입니다.", HttpStatus.ALREADY_REPORTED, null);
         }
         UserRoleEnum role = UserRoleEnum.USER;
         if(userRequestDto.isAdmin()){
@@ -67,6 +67,6 @@ public class UserService {
         //http header에 jwt 토큰 발급
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(user.getUsername(),user.getRole()));
 
-        return new StatusResponseDto("로그인이 완료되었습니다.", HttpStatus.OK);
+        return new StatusResponseDto("로그인이 완료되었습니다.", HttpStatus.OK, null);
     }
 }

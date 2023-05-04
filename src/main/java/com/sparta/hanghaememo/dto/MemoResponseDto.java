@@ -1,14 +1,14 @@
 package com.sparta.hanghaememo.dto;
 
-import com.sparta.hanghaememo.entity.Comment;
 import com.sparta.hanghaememo.entity.Memo;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter
+@NoArgsConstructor
 public class MemoResponseDto {
 
     private String createdAt;
